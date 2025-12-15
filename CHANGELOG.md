@@ -1,4 +1,44 @@
-# clear-sparql-cache-endpoint
+# lindas-clear-sparql-cache-endpoint Changelog
+
+**Repository:** SwissFederalArchives/lindas-clear-sparql-cache-endpoint
+**Description:** Endpoint service to clear SPARQL query cache
+
+---
+
+## LINDAS Development (December 2025)
+
+### 2025-12-04
+
+**`22083aa` - Fix Dockerfile to use npm install instead of npm ci**
+- Fixed Dockerfile build process for compatibility
+
+**`45d22ca` - Initialize changesets for release management**
+- Added changesets for automated versioning
+
+**`3b8ed6f` - Use npm install instead of npm ci for CI compatibility**
+- Fixed CI workflow compatibility
+
+**`414b68b` - Update CI to use Node.js 22 for consistency**
+- Upgraded CI to Node.js 22
+
+**`1b0cdbd` - Regenerate package-lock.json for CI compatibility**
+- Fixed lockfile for CI builds
+
+**`60b529e` - Fix release workflow to use default GITHUB_TOKEN**
+- Fixed release automation
+
+**`e2e741f` - Fix security vulnerabilities and add CI workflow**
+- Fixed security vulnerabilities in dependencies
+- Added GitHub Actions CI workflow
+
+### 2025-10-17
+
+**`a805a20` - Initial mirror from rareba/clear-sparql-cache-endpoint**
+- Initial repository setup from original rareba repository
+
+---
+
+## Original Releases
 
 ## 0.3.2
 
@@ -31,3 +71,7 @@
 ### Minor Changes
 
 - 831ff83: First release
+
+---
+
+*Last updated: 2025-12-15*
