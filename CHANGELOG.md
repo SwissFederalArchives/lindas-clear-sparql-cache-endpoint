@@ -14,10 +14,11 @@
 - Updated CI workflow to trigger on develop branch and PRs
 - Rewrote Docker workflow for immutable version tags:
   - Build on main push creates `{version}` and `sha-{hash}` tags
-  - No automatic environment deployment - all deployments are manual
-- Added `deploy-test.yaml`: Deploy any version to TEST
-- Added `deploy-int.yaml`: Deploy any version to INT
-- Added `deploy-prod.yaml`: Deploy any version to PROD (requires approval)
+  - **Automatic deployment to TEST** after successful build
+  - Saves previous TEST version as `test-previous` for rollback
+- Added `deploy-test.yaml`: Deploy any version to TEST (manual override)
+- Added `deploy-int.yaml`: Promote any version to INT (manual trigger)
+- Added `deploy-prod.yaml`: Promote any version to PROD (requires approval)
 - Added one-click rollback workflows:
   - `rollback-test.yaml`: Swap test/test-previous (one click)
   - `rollback-int.yaml`: Swap int/int-previous (one click)

@@ -1,4 +1,4 @@
-name: Build
+name: Build and Deploy to TEST
 
 on:
   push:
@@ -69,14 +69,35 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Save current TEST as previous
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          if docker pull $REGISTRY/$IMAGE_NAME:test 2>/dev/null; then
+            echo "Saving current 'test' as 'test-previous'"
+            docker tag $REGISTRY/$IMAGE_NAME:test $REGISTRY/$IMAGE_NAME:test-previous
+            docker push $REGISTRY/$IMAGE_NAME:test-previous
+          else
+            echo "No existing 'test' tag to save"
+          fi
+
+      - name: Deploy to TEST
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          docker pull $REGISTRY/$IMAGE_NAME:${{ steps.version.outputs.version }}
+          docker tag $REGISTRY/$IMAGE_NAME:${{ steps.version.outputs.version }} $REGISTRY/$IMAGE_NAME:test
+          docker push $REGISTRY/$IMAGE_NAME:test
+          echo "Deployed ${{ steps.version.outputs.version }} to TEST"
+
       - name: Summary
         if: ${{ github.event_name != 'pull_request' }}
         run: |
-          echo "## Docker Image Built" >> $GITHUB_STEP_SUMMARY
+          echo "## Built and Deployed to TEST" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Tag | Description |" >> $GITHUB_STEP_SUMMARY
           echo "|-----|-------------|" >> $GITHUB_STEP_SUMMARY
           echo "| \`${{ steps.version.outputs.version }}\` | Version tag (immutable) |" >> $GITHUB_STEP_SUMMARY
           echo "| \`${{ steps.tags.outputs.sha_tag }}\` | SHA tag (immutable) |" >> $GITHUB_STEP_SUMMARY
+          echo "| \`test\` | TEST environment |" >> $GITHUB_STEP_SUMMARY
+          echo "| \`test-previous\` | Previous TEST version |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "To deploy: Run **Deploy to TEST/INT/PROD** workflow with version \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "To promote: Run **Deploy to INT** workflow with version \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
