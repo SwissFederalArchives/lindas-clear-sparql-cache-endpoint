@@ -5,6 +5,18 @@
 
 ---
 
+## LINDAS Development (January 2026)
+
+### 2026-01-23
+
+**DevOps Workflow Implementation**
+- Created `develop` branch for code review workflow
+- Updated CI workflow to trigger on develop branch and PRs
+- Updated Docker workflow to build (verify) on develop without pushing
+- Docker images only pushed on main branch and version tags
+
+---
+
 ## LINDAS Development (December 2025)
 
 ### 2025-12-04
@@ -74,4 +86,4 @@
 
 ---
 
-*Last updated: 2025-12-15*
+*Last updated: 2026-01-23*
