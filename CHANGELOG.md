@@ -9,23 +9,26 @@
 
 ### 2026-01-23
 
-**DevOps Workflow Implementation - Build Once, Deploy Many**
+**DevOps Workflow Implementation - Build Once, Deploy Anywhere**
 - Created `develop` branch for code review workflow
 - Updated CI workflow to trigger on develop branch and PRs
-- Rewrote Docker workflow for environment-based tagging:
-  - Builds on main push with `{version}-test` tag
-  - Same image promoted through TEST -> INT -> PROD
-- Added `promote-int.yaml` workflow: re-tags test image for INT
-- Added `promote-prod.yaml` workflow: re-tags INT image for PROD (requires approval)
-- Added `rollback.yaml` workflow: re-tags older version for rollback
-- Configured branch protection (require 1 review, CI must pass)
-- Added comprehensive deployment documentation to README
+- Rewrote Docker workflow for immutable version tags:
+  - Build on main push creates `{version}` and `sha-{hash}` tags
+  - No automatic environment deployment - all deployments are manual
+- Added `deploy-test.yaml`: Deploy any version to TEST
+- Added `deploy-int.yaml`: Deploy any version to INT
+- Added `deploy-prod.yaml`: Deploy any version to PROD (requires approval)
+- Added one-click rollback workflows:
+  - `rollback-test.yaml`: Swap test/test-previous (one click)
+  - `rollback-int.yaml`: Swap int/int-previous (one click)
+  - `rollback-prod.yaml`: Swap prod/prod-previous (requires approval)
 
 **Image Tag Pattern:**
-- `{version}-test` - TEST environment
-- `{version}-int` - INT environment
-- `{version}-prod` - PROD environment
-- `sha-{hash}` - Immutable reference
+- `{version}` - Immutable version tag (0.3.2, 0.3.3, etc.)
+- `sha-{hash}` - Immutable SHA reference
+- `test`, `test-previous` - TEST environment (current/rollback)
+- `int`, `int-previous` - INT environment (current/rollback)
+- `prod`, `prod-previous` - PROD environment (current/rollback)
 
 ---
 

@@ -1,4 +1,4 @@
-name: Build and Push to TEST
+name: Build
 
 on:
   push:
@@ -21,10 +21,6 @@ jobs:
       contents: read
       packages: write
 
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-      sha_tag: ${{ steps.tags.outputs.sha_tag }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,9 +38,7 @@ jobs:
         id: tags
         run: |
           SHA_SHORT=$(git rev-parse --short HEAD)
-          VERSION="${{ steps.version.outputs.version }}"
           echo "sha_tag=sha-${SHA_SHORT}" >> $GITHUB_OUTPUT
-          echo "test_tag=${VERSION}-test" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -67,9 +61,8 @@ jobs:
           file: ./Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tags.outputs.sha_tag }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tags.outputs.test_tag }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
           platforms: |
             linux/amd64
             linux/arm64
@@ -81,10 +74,9 @@ jobs:
         run: |
           echo "## Docker Image Built" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Tag | Purpose |" >> $GITHUB_STEP_SUMMARY
-          echo "|-----|---------|" >> $GITHUB_STEP_SUMMARY
-          echo "| \`${{ steps.tags.outputs.sha_tag }}\` | Immutable SHA reference |" >> $GITHUB_STEP_SUMMARY
-          echo "| \`${{ steps.tags.outputs.test_tag }}\` | TEST environment |" >> $GITHUB_STEP_SUMMARY
-          echo "| \`main\` | Latest main branch |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag | Description |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|-------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| \`${{ steps.version.outputs.version }}\` | Version tag (immutable) |" >> $GITHUB_STEP_SUMMARY
+          echo "| \`${{ steps.tags.outputs.sha_tag }}\` | SHA tag (immutable) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "To promote to INT: Run **Promote to INT** workflow" >> $GITHUB_STEP_SUMMARY
+          echo "To deploy: Run **Deploy to TEST/INT/PROD** workflow with version \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
