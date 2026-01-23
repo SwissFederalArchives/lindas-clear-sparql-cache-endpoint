@@ -9,14 +9,23 @@
 
 ### 2026-01-23
 
-**DevOps Workflow Implementation**
+**DevOps Workflow Implementation - Build Once, Deploy Many**
 - Created `develop` branch for code review workflow
 - Updated CI workflow to trigger on develop branch and PRs
-- Updated Docker workflow to build (verify) on develop without pushing
-- Docker images only pushed on main branch and version tags
-- Added `promote.yaml` workflow for creating promotion PRs (develop -> main)
-- Added `rollback.yaml` workflow for rolling back to previous versions
-- Added development workflow documentation to README
+- Rewrote Docker workflow for environment-based tagging:
+  - Builds on main push with `{version}-test` tag
+  - Same image promoted through TEST -> INT -> PROD
+- Added `promote-int.yaml` workflow: re-tags test image for INT
+- Added `promote-prod.yaml` workflow: re-tags INT image for PROD (requires approval)
+- Added `rollback.yaml` workflow: re-tags older version for rollback
+- Configured branch protection (require 1 review, CI must pass)
+- Added comprehensive deployment documentation to README
+
+**Image Tag Pattern:**
+- `{version}-test` - TEST environment
+- `{version}-int` - INT environment
+- `{version}-prod` - PROD environment
+- `sha-{hash}` - Immutable reference
 
 ---
 

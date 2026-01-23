@@ -49,48 +49,57 @@ Without this trick, the cache would be invalidated every time the script runs un
 
 ### Branching Strategy
 
-This repository follows a two-branch development workflow:
-
 - **develop**: Integration branch for features and fixes
-- **main**: Production-ready code only
+- **main**: Production-ready code, triggers Docker builds
 
-### Workflow
+### Build Once, Deploy Many
 
-1. Create a feature branch from `develop`
-2. Make changes and commit
-3. Create a PR to `develop`
-4. After review and CI passes, merge to `develop`
-5. When ready for release, use the **Promote** workflow to create a PR from `develop` to `main`
-6. Merge the promotion PR to trigger the release process
+Docker images are built **once** on main and promoted through environments by re-tagging:
+
+```
+main merge → 0.3.2-test → (promote) → 0.3.2-int → (promote) → 0.3.2-prod
+```
+
+Same image binary, different tags. No rebuilding between environments.
 
 ### CI/CD Workflows
 
 | Workflow | Trigger | Description |
 |----------|---------|-------------|
 | CI | Push/PR to develop, main | Runs lint and security audit |
-| Docker | Push to main, tags | Builds and pushes Docker image |
-| Release | Push to main | Creates version bump PR or release tag via changesets |
-| Promote | Manual | Creates PR from develop to main |
-| Rollback | Manual | Rolls back to a previous version tag |
+| Build and Push to TEST | Push to main | Builds image with `{version}-test` tag |
+| Release | Push to main | Version bump via changesets |
+| Promote to INT | Manual | Re-tags `{version}-test` → `{version}-int` |
+| Promote to PROD | Manual | Re-tags `{version}-int` → `{version}-prod` (requires approval) |
+| Rollback | Manual | Re-tags older version to `{env}-rollback` |
 
-### Release Process
+### Image Tags
 
-1. Add a changeset: `npx changeset`
-2. Commit and push to `develop`
-3. Run the **Promote** workflow to create a PR to `main`
-4. Merge the promotion PR
-5. Changesets will create a version bump PR
-6. Merge the version PR to create a release tag
-7. Docker workflow will build and push the new version
+| Tag Pattern | Environment | Example |
+|-------------|-------------|---------|
+| `{version}-test` | TEST | `0.3.2-test` |
+| `{version}-int` | INT | `0.3.2-int` |
+| `{version}-prod` | PROD | `0.3.2-prod` |
+| `sha-{hash}` | Immutable reference | `sha-abc1234` |
+| `main` | Latest main branch | `main` |
+
+### Deployment Flow
+
+1. Merge PR to `main`
+2. Docker workflow builds and pushes `{version}-test`
+3. Flux deploys TEST using `{version}-test` tag
+4. After TEST validation, run **Promote to INT** workflow
+5. Flux deploys INT using `{version}-int` tag
+6. After INT validation, run **Promote to PROD** workflow (requires approval)
+7. Flux deploys PROD using `{version}-prod` tag
 
 ### Rollback
 
-To rollback to a previous version:
-
 1. Go to Actions > Rollback
-2. Enter the version tag (e.g., `v0.3.1`)
-3. Type "rollback" to confirm
-4. The workflow will retag the old image as `rollback-active`
+2. Select environment (test/int/prod)
+3. Enter version to rollback to (e.g., `0.3.1`)
+4. Workflow re-tags that version as `{env}-rollback`
+5. Update Flux to use `{env}-rollback` tag
 
 ## License
 
