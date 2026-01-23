@@ -14,6 +14,9 @@
 - Updated CI workflow to trigger on develop branch and PRs
 - Updated Docker workflow to build (verify) on develop without pushing
 - Docker images only pushed on main branch and version tags
+- Added `promote.yaml` workflow for creating promotion PRs (develop -> main)
+- Added `rollback.yaml` workflow for rolling back to previous versions
+- Added development workflow documentation to README
 
 ---
 

@@ -45,6 +45,53 @@ Using S3 allows us to trick a bit for the cases where `dateModified` returned by
 The trick makes sure that the cache is invalidated for this entry only the first time, and the day after the `dateModified` date.
 Without this trick, the cache would be invalidated every time the script runs until the day after its value.
 
+## Development
+
+### Branching Strategy
+
+This repository follows a two-branch development workflow:
+
+- **develop**: Integration branch for features and fixes
+- **main**: Production-ready code only
+
+### Workflow
+
+1. Create a feature branch from `develop`
+2. Make changes and commit
+3. Create a PR to `develop`
+4. After review and CI passes, merge to `develop`
+5. When ready for release, use the **Promote** workflow to create a PR from `develop` to `main`
+6. Merge the promotion PR to trigger the release process
+
+### CI/CD Workflows
+
+| Workflow | Trigger | Description |
+|----------|---------|-------------|
+| CI | Push/PR to develop, main | Runs lint and security audit |
+| Docker | Push to main, tags | Builds and pushes Docker image |
+| Release | Push to main | Creates version bump PR or release tag via changesets |
+| Promote | Manual | Creates PR from develop to main |
+| Rollback | Manual | Rolls back to a previous version tag |
+
+### Release Process
+
+1. Add a changeset: `npx changeset`
+2. Commit and push to `develop`
+3. Run the **Promote** workflow to create a PR to `main`
+4. Merge the promotion PR
+5. Changesets will create a version bump PR
+6. Merge the version PR to create a release tag
+7. Docker workflow will build and push the new version
+
+### Rollback
+
+To rollback to a previous version:
+
+1. Go to Actions > Rollback
+2. Enter the version tag (e.g., `v0.3.1`)
+3. Type "rollback" to confirm
+4. The workflow will retag the old image as `rollback-active`
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
