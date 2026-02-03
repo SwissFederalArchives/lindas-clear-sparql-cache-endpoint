@@ -5,6 +5,16 @@
 
 ---
 
+## February 2026
+
+### 2026-02-03
+
+**Security Vulnerability Fix**
+- Updated lodash and @aws-sdk transitive dependencies to resolve 21 security vulnerabilities (1 moderate, 20 high)
+- CI security audit job (`npm audit --audit-level=moderate`) now passes cleanly
+
+---
+
 ## LINDAS Development (January 2026)
 
 ### 2026-01-23
@@ -102,4 +112,4 @@
 
 ---
 
-*Last updated: 2026-01-23*
+*Last updated: 2026-02-03*
