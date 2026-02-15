@@ -1,5 +1,11 @@
 # clear-sparql-cache-endpoint
 
+## Unreleased
+
+### Patch Changes
+
+- Add timestamp-based Docker tags (`main-YYYYMMDD-HHmmss`) for Flux image automation on TEST
+
 ## 0.3.2
 
 ### Patch Changes
