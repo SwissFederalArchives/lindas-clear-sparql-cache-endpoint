@@ -9,10 +9,10 @@
     "release": "changeset tag"
   },
   "license": "MIT",
-  "author": "Zazuko GmbH",
+  "author": "Swiss Federal Archives",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zazuko/clear-sparql-cache-endpoint.git"
+    "url": "https://github.com/SwissFederalArchives/lindas-clear-sparql-cache-endpoint.git"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.908.0",
