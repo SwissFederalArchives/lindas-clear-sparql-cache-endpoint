@@ -4,6 +4,7 @@
 
 ### Patch Changes
 
+- Fix npm audit vulnerabilities: update @aws-sdk/client-s3 (fast-xml-parser DoS) and lodash (prototype pollution)
 - Add timestamp-based Docker tags (`main-YYYYMMDD-HHmmss`) for Flux image automation on TEST
 - Add promote/rollback workflow (`promote.yaml`) via `workflow_dispatch`
   - Action dropdown: promote, rollback-test, rollback-int, rollback-prod
