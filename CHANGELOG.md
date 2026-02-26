@@ -2,7 +2,20 @@
 
 ## Unreleased
 
+### Minor Changes
+
+- Add manual cache purge workflow (`manual-purge.yaml`) via `workflow_dispatch`
+  - Environment dropdown: test, int, prod
+  - Mode dropdown: full (purges all datasets), selective-24h (last 24 hours only)
+  - Runs the Docker image directly in GitHub Actions with S3 disabled (does not interfere with CronJob state)
+  - Full mode sets DEFAULT_PREVIOUS_DATE to epoch so all datasets are picked up by the SPARQL query
+  - Requires CACHE_ENDPOINT_PASSWORD secret per GitHub environment
+
 ### Patch Changes
+
+- Fix promote workflow: replace `${{ github.repository }}` with hardcoded lowercase image path to prevent Docker registry errors (GHCR requires all-lowercase paths)
+
+### Previous Changes
 
 - Fix npm audit vulnerabilities: update @aws-sdk/client-s3 (fast-xml-parser DoS) and lodash (prototype pollution)
 - Standardize Docker image tag naming: changed from `main-YYYYMMDD-HHmmss` to `test_YYYY-MM-DD_HHmmss`
