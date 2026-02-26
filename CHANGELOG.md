@@ -4,12 +4,11 @@
 
 ### Minor Changes
 
-- Add manual cache purge workflow (`manual-purge.yaml`) via `workflow_dispatch`
-  - Environment dropdown: test, int, prod
-  - Mode dropdown: full (purges all datasets), selective-24h (last 24 hours only)
-  - Runs the Docker image directly in GitHub Actions with S3 disabled (does not interfere with CronJob state)
-  - Full mode sets DEFAULT_PREVIOUS_DATE to epoch so all datasets are picked up by the SPARQL query
-  - Requires CACHE_ENDPOINT_PASSWORD secret per GitHub environment
+- Add one-click cache purge workflows per environment (`purge-test.yaml`, `purge-int.yaml`, `purge-prod.yaml`)
+  - Each workflow is triggered via `workflow_dispatch` (Run workflow button in GitHub Actions)
+  - Runs the Docker image directly in GitHub Actions to purge all cached SPARQL responses
+  - S3 disabled so manual purges do not interfere with CronJob state tracking
+  - Requires `CACHE_ENDPOINT_PASSWORD` secret configured per GitHub environment (test, int, prod)
 
 ### Patch Changes
 
