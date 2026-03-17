@@ -200,18 +200,51 @@ if (entriesToClear.size > 0) {
 console.log(`\nFound ${entriesToClear.size} cache entries to clear:`);
 const entriesToClearArray = Array.from(entriesToClear);
 const promises = await Promise.allSettled(entriesToClearArray.map(async (entry) => {
-  const results = await fetch(cacheEndpoint, {
-    method: "PURGE",
-    headers: {
-      ...cacheEndpointHeaders,
-      [cacheTagHeader]: entry,
-    },
-    redirect: "follow",
-  });
-  const body = await results.text();
-  console.log(`  - ${entry} (${results.status}):\n${body}`);
-  if (results.status !== 200) {
-    throw new Error(`Failed to clear cache entry ${entry}`);
+  const requestHeaders = {
+    ...cacheEndpointHeaders,
+    [cacheTagHeader]: entry,
+  };
+
+  try {
+    const results = await fetch(cacheEndpoint, {
+      method: "PURGE",
+      headers: requestHeaders,
+      redirect: "follow",
+    });
+    const body = await results.text();
+
+    console.log(`  - ${entry} (${results.status} ${results.statusText}):\n${body}`);
+
+    if (results.status !== 200) {
+      const error = new Error(`Failed to clear cache entry ${entry}`);
+      error.cause = {
+        entry,
+        status: results.status,
+        statusText: results.statusText,
+        body,
+        requestHeaders,
+      };
+      throw error;
+    }
+  } catch (error) {
+    console.error(`  - ${entry}: purge request failed`);
+    console.error(`    endpoint: ${cacheEndpoint}`);
+    console.error(`    header ${cacheTagHeader}: ${entry}`);
+
+    if (error instanceof Error) {
+      console.error(`    error: ${error.message}`);
+      if (error.stack) {
+        console.error(error.stack);
+      }
+      if (error.cause) {
+        console.error("    details:");
+        console.error(error.cause);
+      }
+    } else {
+      console.error("    error:", error);
+    }
+
+    throw error;
   }
 }));
 
@@ -225,5 +258,16 @@ if (s3Enabled) {
 const failedPromises = promises.filter((p) => p.status === "rejected");
 if (failedPromises.length > 0) {
   console.error(`\nFailed to clear ${failedPromises.length} cache entries`);
+  for (const failedPromise of failedPromises) {
+    const reason = failedPromise.reason;
+    if (reason instanceof Error) {
+      console.error(`  - ${reason.message}`);
+      if (reason.cause) {
+        console.error(reason.cause);
+      }
+    } else {
+      console.error("  -", reason);
+    }
+  }
   process.exit(1);
 }
