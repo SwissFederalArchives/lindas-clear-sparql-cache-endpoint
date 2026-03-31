@@ -136,6 +136,17 @@ const addEntryToClear = (entry) => {
   }
 };
 
+/**
+ * Redact sensitive header values before logging.
+ * @param {Record<string, string>} headers
+ */
+const redactHeaders = (headers) => Object.fromEntries(
+  Object.entries(headers).map(([key, value]) => [
+    key,
+    /authorization|cookie|token|secret|key/i.test(key) && key !== cacheTagHeader ? "[REDACTED]" : value,
+  ]),
+);
+
 console.log(`\nChecking for cubes modified after ${previousDate.toISOString()}:`);
 for (const cube of modifiedCubes) {
   const datasetValue = cube.dataset.value;
@@ -219,29 +230,21 @@ const promises = await Promise.allSettled(entriesToClearArray.map(async (entry) 
       const error = new Error(`Failed to clear cache entry ${entry}`);
       error.cause = {
         entry,
+        endpoint: cacheEndpoint,
         status: results.status,
         statusText: results.statusText,
         body,
-        requestHeaders,
+        requestHeaders: redactHeaders(requestHeaders),
       };
       throw error;
     }
   } catch (error) {
-    console.error(`  - ${entry}: purge request failed`);
-    console.error(`    endpoint: ${cacheEndpoint}`);
-    console.error(`    header ${cacheTagHeader}: ${entry}`);
-
-    if (error instanceof Error) {
-      console.error(`    error: ${error.message}`);
-      if (error.stack) {
-        console.error(error.stack);
-      }
-      if (error.cause) {
-        console.error("    details:");
-        console.error(error.cause);
-      }
-    } else {
-      console.error("    error:", error);
+    if (error instanceof Error && !error.cause) {
+      error.cause = {
+        entry,
+        endpoint: cacheEndpoint,
+        requestHeaders: redactHeaders(requestHeaders),
+      };
     }
 
     throw error;
