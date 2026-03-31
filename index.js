@@ -136,6 +136,17 @@ const addEntryToClear = (entry) => {
   }
 };
 
+/**
+ * Redact sensitive header values before logging.
+ * @param {Record<string, string>} headers
+ */
+const redactHeaders = (headers) => Object.fromEntries(
+  Object.entries(headers).map(([key, value]) => [
+    key,
+    /authorization|cookie|token|secret|key/i.test(key) && key !== cacheTagHeader ? "[REDACTED]" : value,
+  ]),
+);
+
 console.log(`\nChecking for cubes modified after ${previousDate.toISOString()}:`);
 for (const cube of modifiedCubes) {
   const datasetValue = cube.dataset.value;
@@ -200,18 +211,43 @@ if (entriesToClear.size > 0) {
 console.log(`\nFound ${entriesToClear.size} cache entries to clear:`);
 const entriesToClearArray = Array.from(entriesToClear);
 const promises = await Promise.allSettled(entriesToClearArray.map(async (entry) => {
-  const results = await fetch(cacheEndpoint, {
-    method: "PURGE",
-    headers: {
-      ...cacheEndpointHeaders,
-      [cacheTagHeader]: entry,
-    },
-    redirect: "follow",
-  });
-  const body = await results.text();
-  console.log(`  - ${entry} (${results.status}):\n${body}`);
-  if (results.status !== 200) {
-    throw new Error(`Failed to clear cache entry ${entry}`);
+  const requestHeaders = {
+    ...cacheEndpointHeaders,
+    [cacheTagHeader]: entry,
+  };
+
+  try {
+    const results = await fetch(cacheEndpoint, {
+      method: "PURGE",
+      headers: requestHeaders,
+      redirect: "follow",
+    });
+    const body = await results.text();
+
+    console.log(`  - ${entry} (${results.status} ${results.statusText}):\n${body}`);
+
+    if (results.status !== 200) {
+      const error = new Error(`Failed to clear cache entry ${entry}`);
+      error.cause = {
+        entry,
+        endpoint: cacheEndpoint,
+        status: results.status,
+        statusText: results.statusText,
+        body,
+        requestHeaders: redactHeaders(requestHeaders),
+      };
+      throw error;
+    }
+  } catch (error) {
+    if (error instanceof Error && !error.cause) {
+      error.cause = {
+        entry,
+        endpoint: cacheEndpoint,
+        requestHeaders: redactHeaders(requestHeaders),
+      };
+    }
+
+    throw error;
   }
 }));
 
@@ -225,5 +261,16 @@ if (s3Enabled) {
 const failedPromises = promises.filter((p) => p.status === "rejected");
 if (failedPromises.length > 0) {
   console.error(`\nFailed to clear ${failedPromises.length} cache entries`);
+  for (const failedPromise of failedPromises) {
+    const reason = failedPromise.reason;
+    if (reason instanceof Error) {
+      console.error(`  - ${reason.message}`);
+      if (reason.cause) {
+        console.error(reason.cause);
+      }
+    } else {
+      console.error("  -", reason);
+    }
+  }
   process.exit(1);
 }
