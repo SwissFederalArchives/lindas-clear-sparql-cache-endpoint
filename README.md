@@ -25,6 +25,7 @@ npm run start # Start the script
 | **SPARQL_ENDPOINT_URL**       | The URL of the SPARQL endpoint                                            | `""`                           |
 | SPARQL_USERNAME               | The username for the SPARQL endpoint                                      | `""`                           |
 | SPARQL_PASSWORD               | The password for the SPARQL endpoint                                      | `""`                           |
+| CHECKPOINT_OVERLAP_SECONDS    | Seconds before the stored checkpoint to recheck for late-visible changes  | `"0"`                          |
 | S3_ENABLED                    | Whether to use S3 for caching                                             | `"false"`                      |
 | S3_LAST_TIMESTAMP_KEY         | The key for the last timestamp file in S3                                 | `"last_timestamp.txt"`         |
 | S3_SIMPLE_DATE_WORKAROUND_KEY | The key for the simple date workaround file in S3                         | `"simple_date_workaround.txt"` |

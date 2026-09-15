@@ -33,6 +33,13 @@ const sparqlEndpointUrl = process.env.SPARQL_ENDPOINT_URL || "";
 const sparqlUsername = process.env.SPARQL_USERNAME || "";
 const sparqlPassword = process.env.SPARQL_PASSWORD || "";
 
+// Recheck a configurable interval before the stored checkpoint. This covers
+// resources whose dateModified was assigned before they became queryable.
+const checkpointOverlapSeconds = Number(process.env.CHECKPOINT_OVERLAP_SECONDS || "0");
+if (!Number.isInteger(checkpointOverlapSeconds) || checkpointOverlapSeconds < 0) {
+  throw new Error("CHECKPOINT_OVERLAP_SECONDS must be a non-negative integer");
+}
+
 // Get the date to compare with
 let previousDateStr = process.env.DEFAULT_PREVIOUS_DATE || yesterdayStr; // 1 day ago
 let simpleDateData = {};
@@ -58,7 +65,14 @@ if (s3Enabled) {
     console.error(`Failed to get simple date workaround from S3: ${error}`);
   }
 }
-const previousDate = new Date(previousDateStr);
+const storedCheckpoint = new Date(previousDateStr);
+if (Number.isNaN(storedCheckpoint.getTime())) {
+  throw new Error(`Invalid checkpoint: ${previousDateStr}`);
+}
+const previousDate = new Date(storedCheckpoint.getTime() - checkpointOverlapSeconds * 1000);
+
+console.log(`Stored checkpoint: ${storedCheckpoint.toISOString()}`);
+console.log(`Effective checkpoint after ${checkpointOverlapSeconds}s overlap: ${previousDate.toISOString()}`);
 
 // Tell the user that some required environment variables are missing
 if (!cacheEndpoint) {
