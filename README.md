@@ -5,12 +5,20 @@ You can take a look at our custom [varnish-post](https://github.com/zazuko/varni
 
 ## Get started
 
+Use Node.js 22.23.4 or a newer Node.js 22 release. Version 22.23.4 fixes
+[CVE-2026-111497 in the bundled Brotli decoder](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases).
+With nvm, run `nvm install` and `nvm use` to select the version in `.nvmrc`.
+
 ```sh
 npm install # Install dependencies
 cp example.env .env # Copy environment variables file
 # Open your editor, and fill the environment variables in the `.env` file
 npm run start # Start the script
 ```
+
+For container deployments, rebuild the image and redeploy the scheduled job to use
+the patched runtime. Existing images retain their original Node.js version;
+retagging an old image does not apply the fix.
 
 ## Environment variables
 

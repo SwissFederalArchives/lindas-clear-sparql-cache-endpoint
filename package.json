@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "entrypoint": "index.js",
+  "engines": {
+    "node": "^22.23.4"
+  },
   "scripts": {
     "start": "node index.js",
     "release": "changeset tag"
