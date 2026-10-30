@@ -1,4 +1,4 @@
-FROM index.docker.io/library/node:22.23.4-alpine
+FROM index.docker.io/library/node:26.13.0-alpine
 
 WORKDIR /app
 
