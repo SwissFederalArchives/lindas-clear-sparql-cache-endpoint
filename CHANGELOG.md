@@ -1,5 +1,18 @@
 # clear-sparql-cache-endpoint
 
+## 0.3.4
+
+### Patch Changes
+
+- e4f46f3: Update Changesets CLI to v3, use the git-tag command for release tags, and explicitly enable versioning and tagging for this private package.
+- f5c75c4: Update Docker build and push action from v6 to v7 for container image publishing.
+- ef5b046: Update Docker Buildx setup action from v3 to v4 for container builds and image promotion.
+- da35f24: Update Docker metadata action from v5 to v6 for container image tags and labels.
+- 2798e30: Update Docker QEMU setup action from v3 to v4 for multi-platform container builds.
+- c81f538: Update dotenv from 17.2.3 to 18.0.9 for environment configuration loading.
+- bf05514: Update ESLint from 10.13.0 to 10.14.0 for development linting.
+- 162a5e8: Update globals from 17.13.0 to 17.14.0 for development linting.
+
 ## 0.3.3
 
 ### Patch Changes
