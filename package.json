@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node index.js",
     "lint": "eslint index.js lib/ eslint.config.js",
-    "release": "changeset tag"
+    "release": "changeset git-tag"
   },
   "license": "MIT",
   "author": "Swiss Federal Archives",
